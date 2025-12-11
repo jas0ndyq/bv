@@ -22,8 +22,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Single
 import bilibili.pgc.gateway.player.v2.PlayURLGrpcKt as PgcPlayURLGrpcKt
 
+@Single
 class VideoPlayRepository(
     private val authRepository: AuthRepository,
     private val channelRepository: ChannelRepository
@@ -61,7 +63,8 @@ class VideoPlayRepository(
                     qn = 127,
                     fnver = 0,
                     fourk = 1,
-                    sessData = authRepository.sessionData
+                    sessData = authRepository.sessionData,
+                    dedeUserID = authRepository.mid
                 ).getResponseData()
                 PlayData.fromPlayUrlData(playUrlData)
             }
@@ -110,8 +113,8 @@ class VideoPlayRepository(
     }
 
     suspend fun getPgcPlayData(
-        aid: Long,
-        cid: Long,
+        aid: Long?,
+        cid: Long?,
         epid: Int,
         preferCodec: CodeType = CodeType.NoCode,
         preferApiType: ApiType = ApiType.Web,
@@ -125,11 +128,13 @@ class VideoPlayRepository(
                     BiliHttpProxyApi.getPgcVideoPlayUrl(
                         av = aid,
                         cid = cid,
+                        epid = epid,
                         fnval = 4048,
                         qn = 127,
                         fnver = 0,
                         fourk = 1,
-                        sessData = authRepository.sessionData
+                        sessData = authRepository.sessionData,
+                        dedeUserID = authRepository.mid
                     )
                 } else {
                     BiliHttpApi.getPgcVideoPlayUrl(
@@ -139,7 +144,8 @@ class VideoPlayRepository(
                         qn = 127,
                         fnver = 0,
                         fourk = 1,
-                        sessData = authRepository.sessionData
+                        sessData = authRepository.sessionData,
+                        dedeUserID = authRepository.mid
                     )
                 }.getResponseData()
 
@@ -156,7 +162,7 @@ class VideoPlayRepository(
                     val replies = codecTypes.map { codecType ->
                         val req = playViewReq {
                             this.epid = epid.toLong()
-                            this.cid = cid
+                            cid?.let { this.cid = it }
                             qn = 127
                             fnver = 0
                             fnval = 4048
@@ -206,10 +212,12 @@ class VideoPlayRepository(
                 val response = BiliHttpApi.getVideoMoreInfo(
                     avid = aid,
                     cid = cid,
-                    sessData = authRepository.sessionData ?: ""
+                    sessData = authRepository.sessionData ?: "",
+                    buvid3 = authRepository.buvid3 ?: ""
                 ).getResponseData()
-                response.subtitle.subtitles
-                    .map { Subtitle.fromSubtitleItem(it) }
+                response.subtitle?.subtitles
+                    ?.map { Subtitle.fromSubtitleItem(it) }
+                    ?: emptyList()
             }
 
             ApiType.App -> {
@@ -274,7 +282,8 @@ class VideoPlayRepository(
                 val response = BiliHttpApi.getVideoMoreInfo(
                     avid = aid,
                     cid = cid,
-                    sessData = authRepository.sessionData ?: ""
+                    sessData = authRepository.sessionData ?: "",
+                    buvid3 = authRepository.buvid3 ?: ""
                 ).getResponseData()
                 response.dmMask?.maskUrl
             }

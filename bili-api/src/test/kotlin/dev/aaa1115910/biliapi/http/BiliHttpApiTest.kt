@@ -5,6 +5,7 @@ import dev.aaa1115910.biliapi.entity.season.FollowingSeasonStatus
 import dev.aaa1115910.biliapi.entity.season.FollowingSeasonType
 import dev.aaa1115910.biliapi.http.entity.user.FollowAction
 import dev.aaa1115910.biliapi.http.entity.user.FollowActionSource
+import dev.aaa1115910.biliapi.http.util.generateBuvid
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -77,7 +78,8 @@ internal class BiliHttpApiTest {
                     cid = 903675075,
                     fnval = 4048,
                     qn = 127,
-                    sessData = SESSDATA
+                    sessData = SESSDATA,
+                    dedeUserID = UID
                 )
                 println(response)
             }
@@ -89,6 +91,22 @@ internal class BiliHttpApiTest {
         runBlocking {
             println(
                 BiliHttpApi.getPgcVideoPlayUrl(
+                    av = 672676070,
+                    cid = 331748015,
+                    fnval = 4048,
+                    qn = 127,
+                    sessData = SESSDATA,
+                    dedeUserID = UID
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `get pgc video play url v2`() {
+        runBlocking {
+            println(
+                BiliHttpApi.getPgcVideoPlayUrlV2(
                     av = 672676070,
                     cid = 331748015,
                     fnval = 4048,
@@ -248,7 +266,8 @@ internal class BiliHttpApiTest {
             val response = BiliHttpApi.getVideoMoreInfo(
                 avid = 170001,
                 cid = 279786,
-                sessData = SESSDATA
+                sessData = SESSDATA,
+                buvid3 = generateBuvid()
             ).getResponseData()
             println("lastPlayTime: ${response.lastPlayTime}")
             println("lastPlayCid: ${response.lastPlayCid}")

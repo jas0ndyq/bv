@@ -1,7 +1,7 @@
 package dev.aaa1115910.biliapi.entity.video.season
 
 data class Section(
-    val id: Int,
+    val id: Long,
     val title: String,
     val episodes: List<Episode>
 ) {
@@ -14,7 +14,7 @@ data class Section(
             )
 
         fun fromSection(section: bilibili.app.view.v1.Section) = Section(
-            id = section.id.toInt(),
+            id = section.id,
             title = section.title,
             episodes = section.episodesList.map { Episode.fromEpisode(it) }
         )
@@ -24,6 +24,14 @@ data class Section(
                 id = module.id,
                 title = module.title,
                 episodes = module.data.episodes.map { Episode.fromEpisode(it) }
+            )
+
+        fun fromSection(section: dev.aaa1115910.biliapi.http.entity.season.SeasonSection) =
+            Section(
+                id = section.id,
+                title = section.title,
+                episodes = section.episodes.map { Episode.fromEpisode(it) }
+                    .filter { it.aid != 0L }    // aid 为 0 的视频是跳转到其它 PGC 页面的“链接”，暂不适配（
             )
     }
 }

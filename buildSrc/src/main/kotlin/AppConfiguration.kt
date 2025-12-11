@@ -2,12 +2,13 @@ import java.io.File
 
 object AppConfiguration {
     const val appId = "dev.aaa1115910.bv"
-    const val compileSdk = 35
-    const val minSdk = 21
-    const val targetSdk = 35
+    const val compileSdk = 36
+    const val minSdk = 23
+    const val targetSdk = 36
+    const val jdk = 21
     private const val major = 0
-    private const val minor = 2
-    private const val patch = 10
+    private const val minor = 3
+    private const val patch = 0
     private const val hotFix = 0
 
     @Suppress("KotlinConstantConditions")
@@ -18,18 +19,20 @@ object AppConfiguration {
     val versionCode: Int by lazy { "git rev-list --count HEAD".exec().toInt() }
     const val libVLCVersion = "3.0.18"
     var googleServicesAvailable = true
+    const val blacklistUrl =
+        "https://raw.githubusercontent.com/aaa1115910/bv-blacklist/main/blacklist.bin"
 
     init {
         initConfigurations()
     }
 
     private fun initConfigurations() {
-        val googleServicesJsonPath = "pwd".exec() + "/app/google-services.json"
-        val googleServicesJsonFile = File(googleServicesJsonPath)
+        val googleServicesJsonFile = File("app/google-services.json")
         googleServicesAvailable =
             googleServicesJsonFile.exists() && googleServicesJsonFile.readText().let {
-                it.contains(appId) && it.contains("$appId.r8test") && it.contains("$appId.debug")
+                it.contains(appId) && it.contains("$appId.debug")
             }
+        println("Google Services available: $googleServicesAvailable")
     }
 }
 
